@@ -4,10 +4,10 @@ Weather_app is a demo asynchronous web application for fetching weather forecast
 
 The application follows SOLID with separated layers:
 
-- **l1_api** — HTTP/REST API (FastAPI)  
-- **l2_application** — Business logic / UseCases (forecast retrieval, cache handling)  
-- **l3_domain** — Abstractions and interfaces (WeatherProvider)  
-- **l4_infrastructure** — External services implementation (HTTP clients, cache, providers)  
+- **l1_launcher** — backend endpoints  
+- **l2_application** — business logic / UseCases (forecast retrieval, cache handling)  
+- **l3_domain** — abstractions and interfaces (WeatherProvider)  
+- **l4_infrastructure** — external services implementation (HTTP clients, cache, providers)  
 
 ## Features
 
