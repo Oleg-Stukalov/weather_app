@@ -1,6 +1,6 @@
 import pytest
 from httpx import AsyncClient, ASGITransport
-from l1_launcher.v1.main import app
+from l1_api.v1.main import app
 from l2_application.schemas import ForecastDay, ForecastResult
 from datetime import date
 
@@ -11,7 +11,7 @@ async def test_forecast_endpoint_returns_200(monkeypatch):
             days = [ForecastDay(day=date.today(), source="YR.NO", data={"forecast": "sunny"})]
             return ForecastResult(days=days)
    
-    monkeypatch.setattr("l1_launcher.v1.main.get_forecast_usecase", lambda: FakeUseCase())
+    monkeypatch.setattr("l1_api.v1.main.get_forecast_usecase", lambda: FakeUseCase())
 
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:

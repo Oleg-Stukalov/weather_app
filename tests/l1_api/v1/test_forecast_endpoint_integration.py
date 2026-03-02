@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from l1_launcher.v1.main import app
+from l1_api.v1.main import app
 
 @pytest.mark.parametrize("city", ["Belgrade"])
 def test_forecast_endpoint_sync(city):
