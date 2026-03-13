@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 from datetime import date
+from typing import Protocol
 
 
-class WeatherProvider:
-    async def fetch(self, city: str, day: date):
-        """Fetch forecast for a city starting from start_day for given number of days."""
-        return {"forecast": "dummy"}
+class WeatherProvider(Protocol):
+    async def fetch(self, city: str, start_day: date, days: int) -> list[dict]:
+        """Fetch `days` of forecast data starting at `start_day`."""

@@ -14,7 +14,7 @@ class FakeCache:
 
 
 class FakeProvider:
-    async def fetch(self, city: str, day: date):
+    async def fetch(self, city: str, start_day: date, days: int):
         raise AssertionError("Provider should not be called when cache exists")
 
 

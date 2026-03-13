@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 import logging
 from l2_application.schemas import ForecastDay, ForecastResult
+from l3_domain.weather_provider import WeatherProvider
 from l4_infrastructure.yrno_provider import YrNoProvider
 from l4_infrastructure.file_cache import FileCache
 from l4_infrastructure.http_client import HttpClient
@@ -10,7 +11,12 @@ logger = logging.getLogger(__name__)
 
 
 class GetForecastUseCase:
-    def __init__(self, cache: FileCache = None, provider: YrNoProvider = None, http_client: HttpClient = None):
+    def __init__(
+        self,
+        cache: FileCache = None,
+        provider: WeatherProvider | None = None,
+        http_client: HttpClient = None,
+    ):
         self.cache = cache or FileCache(root_dir=config.CACHE_DIR)
         self.provider = provider or YrNoProvider(self.cache)
 
