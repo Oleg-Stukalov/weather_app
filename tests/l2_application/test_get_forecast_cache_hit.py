@@ -2,31 +2,31 @@ import pytest
 from datetime import date, timedelta
 
 from l2_application.get_forecast import GetForecastUseCase
-from l2_application.schemas import ForecastDay, ForecastResult
-
-
-class FakeCache:
-    def exists(self, provider: str, city: str, day: date) -> bool:
-        return True # For all days say that cache is present
-
-    def load(self, provider: str, city: str, day: date):
-        return {"cached": True}
+from l2_application.schemas import ForecastResult
 
 
 class FakeProvider:
+    def __init__(self):
+        self.called = None
+
     async def fetch(self, city: str, start_day: date, days: int):
-        raise AssertionError("Provider should not be called when cache exists")
+        self.called = (city, start_day, days)
+        return [
+            {"forecast": f"data for {start_day + timedelta(days=i)}"}
+            for i in range(days)
+        ]
 
 
 @pytest.mark.asyncio
-async def test_usecase_returns_cached_forecast():
-    cache = FakeCache()
+async def test_usecase_maps_provider_forecast():
     provider = FakeProvider()
-    usecase = GetForecastUseCase(cache=cache, provider=provider)
+    usecase = GetForecastUseCase(provider=provider)
 
     forecast_days = 2
     result = await usecase.execute(city="Belgrade", days=forecast_days)
 
     assert isinstance(result, ForecastResult)
     assert len(result.days) == forecast_days
-    assert all(day.source == "CACHE" for day in result.days)
+    assert provider.called[0] == "Belgrade"
+    assert provider.called[2] == forecast_days
+    assert all(day.source == "YR.NO" for day in result.days)

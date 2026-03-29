@@ -4,6 +4,7 @@ DEFAULT_CITIES = ["Belgrade"]  # optional preload
 ENABLED_PROVIDERS = ["yrno"]
 
 CACHE_DIR = "forecasts"
+CACHE_TTL_SECONDS = 14400 # 4h
 
 LOG_LEVEL = "INFO"
 

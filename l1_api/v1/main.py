@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Query
 import logging
 import config
 from l2_application.get_forecast import GetForecastUseCase
+from l4_infrastructure.cached_weather_provider import CachedWeatherProvider
 from l4_infrastructure.file_cache import FileCache
 from l4_infrastructure.yrno_provider import YrNoProvider
 
@@ -12,13 +13,11 @@ logging.basicConfig(
 
 app = FastAPI(title="Weather_forecast app")
 
+
 def get_forecast_usecase() -> GetForecastUseCase:
     cache = FileCache(base_path=config.CACHE_DIR)
-    provider = YrNoProvider(cache)
-    return GetForecastUseCase(
-        cache=cache, 
-        provider=provider,
-    )
+    provider = CachedWeatherProvider(inner=YrNoProvider(), cache=cache)
+    return GetForecastUseCase(provider=provider)
 
 @app.get("/forecast")
 async def forecast(city: str = Query(..., description="City name for forecast")):
