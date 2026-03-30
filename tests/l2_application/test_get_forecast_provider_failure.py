@@ -1,18 +1,7 @@
 import pytest
 from datetime import date
+
 from l2_application.get_forecast import GetForecastUseCase
-from l2_application.schemas import ForecastResult
-
-
-class FakeCache:
-    def exists(self, provider: str, city: str, day: date) -> bool:
-        return True
-
-    def load(self, provider: str, city: str, day: date) -> dict:
-        return {"cached": True}
-
-    def save(self, *args):
-        raise AssertionError("Should not save when provider fails")
 
 
 class FailingProvider:
@@ -21,12 +10,9 @@ class FailingProvider:
 
 
 @pytest.mark.asyncio
-async def test_fallback_to_cache_when_provider_fails():
-    cache = FakeCache()
+async def test_usecase_propagates_provider_failure():
     provider = FailingProvider()
-    usecase = GetForecastUseCase(cache=cache, provider=provider)
+    usecase = GetForecastUseCase(provider=provider)
 
-    result = await usecase.execute("Belgrade", days=2)
-
-    assert isinstance(result, ForecastResult)
-    assert all(day.source == "CACHE" for day in result.days)
+    with pytest.raises(RuntimeError, match="Provider failed"):
+        await usecase.execute("Belgrade", days=2)

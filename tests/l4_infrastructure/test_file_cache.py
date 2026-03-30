@@ -1,23 +1,39 @@
-from datetime import date
+import os
+import time
+
+import pytest
 
 from l4_infrastructure.file_cache import FileCache
 
 
-def test_file_cache_save_load_exists(tmp_path):
+@pytest.mark.asyncio
+async def test_file_cache_save_load_compact(tmp_path):
     cache = FileCache(base_path=tmp_path)
 
     provider = "YR.NO"
     city = "Belgrade"
-    day = date(2026, 3, 2)
+    data = {"properties": {"timeseries": [{"time": "2026-03-02T00:00:00Z"}]}}
 
-    data = {"temp": 15}
+    assert not await cache.has_fresh_compact(provider, city, ttl_seconds=60)
 
-    assert not cache.exists(provider, city, day)
+    await cache.save_compact(provider, city, data)
 
-    cache.save(provider, city, day, data)
+    assert await cache.has_fresh_compact(provider, city, ttl_seconds=60)
 
-    assert cache.exists(provider, city, day)
-
-   
-    loaded = cache.load(provider, city, day)
+    loaded = await cache.load_compact(provider, city)
     assert loaded == data
+
+
+@pytest.mark.asyncio
+async def test_file_cache_compact_expires_by_ttl(tmp_path):
+    cache = FileCache(base_path=tmp_path)
+    provider = "YR.NO"
+    city = "Belgrade"
+    data = {"properties": {"timeseries": []}}
+
+    await cache.save_compact(provider, city, data)
+    path = tmp_path / provider / city / "compact.json"
+    stale_mtime = time.time() - 120
+    os.utime(path, (stale_mtime, stale_mtime))
+
+    assert not await cache.has_fresh_compact(provider, city, ttl_seconds=60)
